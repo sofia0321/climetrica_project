@@ -1,0 +1,86 @@
+{% extends 'series_temporales/base.html' %}
+{% load static %}
+
+{% block title %}{{ variable }} - Climétrica{% endblock %}
+
+{% block content %}
+<div class="serie-temporal-container">
+    <header class="serie-header">
+        <a href="{% url 'series_temporales:home' %}" class="back-btn">← </a>
+        <h2>{{ variable }}</h2>
+        <div class="header-actions">
+            <button class="action-btn download-btn" id="downloadBtn">📥</button>
+            <button class="action-btn filter-btn" id="filterBtn">🔍</button>
+            <button class="action-btn annotation-btn" id="annotationBtn" title="Agregar anotación">📝</button>
+        </div>
+    </header>
+
+    <div class="chart-container">
+        <div id="mainChart"></div>
+        <div id="rangeSelector"></div>
+    </div>
+
+    <div class="stats-container">
+        <button class="stats-btn" id="statsBtn">Estadísticas</button>
+        <div class="stats-panel" id="statsPanel" style="display: none;">
+            <h3>Estadísticas Descriptivas:</h3>
+            <p>Max: <span id="statMax">-</span> {{ unidad }}</p>
+            <p>Min: <span id="statMin">-</span> {{ unidad }}</p>
+            <p>Mean: <span id="statMean">-</span> {{ unidad }}</p>
+            <p>Median: <span id="statMedian">-</span> {{ unidad }}</p>
+        </div>
+    </div>
+</div>
+ <!-- NUEVO: Panel de anotaciones -->
+    <div class="annotation-panel" id="annotationPanel" style="display: none;">
+        <div class="panel-header">
+            <h3>Agregar Anotación</h3>
+            <button class="close-btn" id="closeAnnotationPanel">✕</button>
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="annotationDate">Fecha (clic en el gráfico):</label>
+                <input type="text" id="annotationDate" readonly>
+            </div>
+            <div class="form-group">
+                <label for="annotationValue">Valor:</label>
+                <input type="number" step="0.01" id="annotationValue" readonly>
+            </div>
+            <div class="form-group">
+                <label for="annotationText">Texto de la anotación:</label>
+                <textarea id="annotationText" rows="3" placeholder="Ej: Evento extremo detectado"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="annotationType">Tipo de marcador:</label>
+                <select id="annotationType">
+                    <option value="text">Texto simple</option>
+                    <option value="arrow">Flecha</option>
+                    <option value="line">Línea vertical</option>
+                    <option value="area">Área sombreada</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="annotationColor">Color:</label>
+                <input type="color" id="annotationColor" value="#FF5722">
+            </div>
+            <div class="form-actions">
+                <button class="btn-cancel" id="cancelAnnotation">Cancelar</button>
+                <button class="btn-add" id="addAnnotation">Agregar</button>
+            </div>
+        </div>
+        
+        <!-- Lista de anotaciones -->
+        <div class="annotations-list">
+            <h4>Anotaciones guardadas:</h4>
+            <div id="annotationsList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const variableKey = '{{ variable_key }}';
+    const variableName = '{{ variable }}';
+    const unidad = '{{ unidad }}';
+</script>
+<script src="{% static 'series_temporales/js/charts.js' %}"></script>
+{% endblock %}

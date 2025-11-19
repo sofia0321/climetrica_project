@@ -1,0 +1,368 @@
+{% extends 'series_temporales/base.html' %}
+{% load static %}
+
+{% block title %}Cargar Archivo CSV - Climétrica{% endblock %}
+
+{% block content %}
+<div class="cargar-archivo-container">
+    <header class="serie-header">
+        <a href="{% url 'series_temporales:home' %}" class="back-btn">←</a>
+        <h2>Cargar Archivo de Datos</h2>
+    </header>
+
+    <div class="upload-section">
+        <div class="upload-box" id="uploadBox">
+            <div class="upload-icon">📁</div>
+            <h3>Arrastra tu archivo CSV aquí</h3>
+            <p>o haz clic para seleccionar</p>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+            <button class="btn-select" onclick="document.getElementById('fileInput').click()">
+                Seleccionar archivo
+            </button>
+        </div>
+
+        <div class="file-info" id="fileInfo" style="display: none;">
+            <h3>Archivo seleccionado:</h3>
+            <p id="fileName"></p>
+            <button class="btn-upload" id="btnUpload">Cargar datos</button>
+        </div>
+
+        <div class="preview-section" id="previewSection" style="display: none;">
+            <h3>Vista previa de datos:</h3>
+            <div class="table-container">
+                <table id="dataPreview"></table>
+            </div>
+            
+            <div class="data-actions">
+                <label for="variableSelect">Asignar a variable:</label>
+                <select id="variableSelect">
+                    <option value="">Seleccionar variable...</option>
+                    <option value="precipitacion">Precipitación Acumulada</option>
+                    <option value="temperatura_aire">Temperatura del Aire</option>
+                    <option value="temperatura_mar">Temperatura del Mar</option>
+                    <option value="velocidad_viento">Velocidad del Viento</option>
+                    <option value="direccion_viento">Dirección del Viento</option>
+                    <option value="nivel_mar">Nivel del Mar</option>
+                    <option value="salinidad">Salinidad</option>
+                </select>
+                
+                <button class="btn-save" id="btnSave">Guardar en base de datos</button>
+                <button class="btn-visualize" id="btnVisualize">Visualizar</button>
+            </div>
+        </div>
+
+        <div class="message-box" id="messageBox" style="display: none;"></div>
+    </div>
+</div>
+
+<style>
+.cargar-archivo-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.upload-section {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.upload-box {
+    border: 3px dashed #4a90e2;
+    border-radius: 15px;
+    padding: 60px 40px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s;
+}
+
+.upload-box:hover {
+    background-color: #e3f2fd;
+    border-color: #2c5aa0;
+}
+
+.upload-box.drag-over {
+    background-color: #bbdefb;
+    border-color: #1976d2;
+}
+
+.upload-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.btn-select, .btn-upload, .btn-save, .btn-visualize {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px 5px;
+    transition: all 0.3s;
+}
+
+.btn-select {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.btn-upload {
+    background-color: #43a047;
+    color: white;
+}
+
+.btn-save {
+    background-color: #fb8c00;
+    color: white;
+}
+
+.btn-visualize {
+    background-color: #8e24aa;
+    color: white;
+}
+
+.btn-select:hover { background-color: #357abd; }
+.btn-upload:hover { background-color: #2e7d32; }
+.btn-save:hover { background-color: #ef6c00; }
+.btn-visualize:hover { background-color: #6a1b9a; }
+
+.file-info, .preview-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+#dataPreview {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#dataPreview th, #dataPreview td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+#dataPreview th {
+    background-color: #4a90e2;
+    color: white;
+}
+
+#dataPreview tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.data-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+#variableSelect {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.message-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.message-box.success {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+    border: 1px solid #4caf50;
+}
+
+.message-box.error {
+    background-color: #ffcdd2;
+    color: #c62828;
+    border: 1px solid #f44336;
+}
+</style>
+
+<script>
+const uploadBox = document.getElementById('uploadBox');
+const fileInput = document.getElementById('fileInput');
+const fileInfo = document.getElementById('fileInfo');
+const fileName = document.getElementById('fileName');
+const btnUpload = document.getElementById('btnUpload');
+const previewSection = document.getElementById('previewSection');
+const dataPreview = document.getElementById('dataPreview');
+const messageBox = document.getElementById('messageBox');
+const btnSave = document.getElementById('btnSave');
+const btnVisualize = document.getElementById('btnVisualize');
+
+let currentData = null;
+
+// Drag and drop
+uploadBox.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadBox.classList.add('drag-over');
+});
+
+uploadBox.addEventListener('dragleave', () => {
+    uploadBox.classList.remove('drag-over');
+});
+
+uploadBox.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadBox.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFileSelect(files[0]);
+    }
+});
+
+// File input change
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+function handleFileSelect(file) {
+    if (!file.name.endsWith('.csv')) {
+        showMessage('Por favor selecciona un archivo CSV', 'error');
+        return;
+    }
+    
+    fileName.textContent = file.name;
+    fileInfo.style.display = 'block';
+    
+    // Guardar el archivo para subirlo después
+    fileInput.files = createFileList(file);
+}
+
+function createFileList(file) {
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    return dataTransfer.files;
+}
+
+// Subir archivo
+btnUpload.addEventListener('click', async () => {
+    const formData = new FormData();
+    formData.append('archivo_csv', fileInput.files[0]);
+    
+    try {
+        btnUpload.disabled = true;
+        btnUpload.textContent = 'Cargando...';
+        
+        const response = await fetch('{% url "series_temporales:cargar_csv" %}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentData = data.datos;
+            showPreview(data.datos, data.columnas);
+            showMessage(data.mensaje, 'success');
+        } else {
+            showMessage(data.error || 'Error al cargar el archivo', 'error');
+        }
+    } catch (error) {
+        showMessage('Error de conexión: ' + error.message, 'error');
+    } finally {
+        btnUpload.disabled = false;
+        btnUpload.textContent = 'Cargar datos';
+    }
+});
+
+function showPreview(datos, columnas) {
+    // Mostrar solo primeras 10 filas
+    const preview = datos.slice(0, 10);
+    
+    let html = '<thead><tr>';
+    columnas.forEach(col => {
+        html += `<th>${col}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    
+    preview.forEach(row => {
+        html += '<tr>';
+        columnas.forEach(col => {
+            html += `<td>${row[col] || ''}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody>';
+    
+    dataPreview.innerHTML = html;
+    previewSection.style.display = 'block';
+}
+
+function showMessage(message, type) {
+    messageBox.textContent = message;
+    messageBox.className = `message-box ${type}`;
+    messageBox.style.display = 'block';
+    
+    setTimeout(() => {
+        messageBox.style.display = 'none';
+    }, 5000);
+}
+
+// Guardar en BD
+btnSave.addEventListener('click', async () => {
+    const variable = document.getElementById('variableSelect').value;
+    
+    if (!variable) {
+        showMessage('Por favor selecciona una variable', 'error');
+        return;
+    }
+    
+    if (!currentData) {
+        showMessage('No hay datos para guardar', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('{% url "series_temporales:guardar_csv" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                variable: variable,
+                datos: currentData
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage(data.mensaje, 'success');
+        } else {
+            showMessage(data.error, 'error');
+        }
+    } catch (error) {
+        showMessage('Error al guardar: ' + error.message, 'error');
+    }
+});
+
+// Visualizar
+btnVisualize.addEventListener('click', () => {
+    const variable = document.getElementById('variableSelect').value;
+    if (variable) {
+        window.location.href = `/${variable}/`;
+    } else {
+        showMessage('Por favor selecciona una variable', 'error');
+    }
+});
+</script>
+{% endblock %}

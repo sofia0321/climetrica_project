@@ -1,0 +1,22 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+
+# Environment
+venv/
+env/
+ENV/
+
+# VSCode
+.vscode/
+
+# Static
+staticfiles/
+media/
+
+# Byte-compiled
+*.py[cod]

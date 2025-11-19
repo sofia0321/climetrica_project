@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Climétrica - Series Temporales{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'series_temporales/css/styles.css' %}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Climétrica</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="{% url 'series_temporales:home' %}" class="nav-item active">
+                    <span class="icon">📊</span>
+                    <span>Series</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">🗺️</span>
+                    <span>Mapas</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item">
+                    <span class="icon">📁</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

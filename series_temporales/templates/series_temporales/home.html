@@ -1,0 +1,70 @@
+{% extends 'series_temporales/base.html' %}
+{% load static %}
+
+{% block title %}Variables Disponibles - Climétrica{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <header class="page-header">
+        <button class="menu-btn">☰</button>
+        <div class="search-bar">
+            <button class="search-icon">☰</button>
+            <input type="text" placeholder="Hinted search text">
+            <button class="search-btn">🔍</button>
+        </div>
+        <div class="user-profile">
+            <span class="user-icon">👤</span>
+            <span class="user-name">Perfil</span>
+        </div>
+    </header>
+
+    <section class="variables-section">
+        <h3 class="section-title">DATOS OCEANOGRAFICOS Y METEREOLOGICOS</h3>
+        <h2 class="section-subtitle">Variables Disponibles</h2>
+
+        <div class="variables-grid">
+            <!-- Precipitación Acumulada -->
+            <a href="{% url 'series_temporales:precipitacion' %}" class="variable-card">
+                <div class="variable-icon precipitation">⛈️</div>
+                <h4>Precipitación Acumulada</h4>
+            </a>
+
+            <!-- Velocidad del Viento -->
+            <a href="{% url 'series_temporales:velocidad_viento' %}" class="variable-card">
+                <div class="variable-icon wind-speed">🎏</div>
+                <h4>Velocidad del Viento</h4>
+            </a>
+
+            <!-- Temperatura del Aire -->
+            <a href="{% url 'series_temporales:temperatura_aire' %}" class="variable-card">
+                <div class="variable-icon air-temp">🌡️</div>
+                <h4>Temperatura del Aire</h4>
+            </a>
+
+            <!-- Temperatura del Mar -->
+            <a href="{% url 'series_temporales:temperatura_mar' %}" class="variable-card">
+                <div class="variable-icon sea-temp">🌊</div>
+                <h4>Temperatura del Mar</h4>
+            </a>
+
+            <!-- Nivel del Mar -->
+            <a href="{% url 'series_temporales:nivel_mar' %}" class="variable-card">
+                <div class="variable-icon sea-level">📏</div>
+                <h4>Nivel del Mar</h4>
+            </a>
+
+            <!-- Dirección del Viento -->
+            <a href="{% url 'series_temporales:direccion_viento' %}" class="variable-card">
+                <div class="variable-icon wind-direction">🧭</div>
+                <h4>Dirección del Viento</h4>
+            </a>
+
+            <!-- Salinidad -->
+            <a href="{% url 'series_temporales:salinidad' %}" class="variable-card">
+                <div class="variable-icon salinity">💧</div>
+                <h4>Salinidad</h4>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
